@@ -4,3 +4,4 @@ memory/episodes.db-wal
 memory/episodes.db-shm
 __pycache__/
 *.pyc
+*.stackdump

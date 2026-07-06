@@ -18,7 +18,13 @@ stop. Do no other work on an incomplete goal.
 
 1. Read `goal.md` and `plan.md` in the task directory.
 2. Read `inputs/` as needed.
-3. Produce or revise the artifact in `output/`.
+3. Produce or revise the artifact in `output/`. If `plan.md` names a governing procedure (payer
+   denial/resubmission work usually does), read it and follow it, then log `applied <id> v<n>`
+   via `log_append.sh`. If you hit a payer denial/resubmission situation with no procedure named
+   in `plan.md`, run `scripts/find_procedure.sh --code <code> --payer <payer>` yourself: exactly
+   one active hit means use it and log it; zero hits, or draft-only, means stop and flag rather
+   than improvise — never invent a payer procedure on a money/client-facing task, the same
+   don't-guess rule as an illegible input.
 4. If this is a re-iteration, read the latest file in `verdicts/` for required fixes — you do
    not have access to the verifier's reasoning, only its written verdict.
 5. Log what you actually did via `scripts/log_append.sh <task-dir> "builder(sonnet)" "<summary>"`

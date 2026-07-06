@@ -4,3 +4,6 @@
 {"ts":"2026-07-06T15:54:17Z","git":"da481b3","pass":6,"fail":0,"failed":"","llm":false}
 {"ts":"2026-07-06T16:00:55Z","git":"253bff6","pass":7,"fail":0,"failed":"","llm":false}
 {"ts":"2026-07-06T16:03:40Z","git":"253bff6","pass":7,"fail":0,"failed":"","llm":false}
+{"ts":"2026-07-06T16:05:26Z","git":"253bff6","pass":7,"fail":0,"failed":"","llm":false}
+{"ts":"2026-07-06T16:11:09Z","git":"87f3e49","pass":7,"fail":1,"failed":"E-008--find-procedure-basics","llm":false}
+{"ts":"2026-07-06T16:13:47Z","git":"87f3e49","pass":8,"fail":0,"failed":"","llm":false}

@@ -4,6 +4,8 @@
 - **Impact class:** FILL-ME   <!-- one of: internal | money | client-facing.
                                  money/client-facing => human approval gate required, see CLAUDE.md -->
 - **Budget:** FILL-ME         <!-- max iterations (default 3), wall-clock cap -->
+- **Tags:**                   <!-- optional: payer + code for claims work, e.g. "aetna CO-197".
+                                    Feeds the episodic index and procedure lookup. Omit if not applicable. -->
 
 ## 1. End State
 FILL-ME
