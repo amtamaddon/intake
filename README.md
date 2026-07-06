@@ -46,7 +46,7 @@ flowchart TB
     RISK -->|yes| APPROVE["A human reviews it and personally<br/>approves it. No AI can do this step"]:::human
     APPROVE --> DONE2["Done, only after<br/>a human said yes"]:::ai
 
-    LOG["Permanent record of everything above."]:::log
+    LOG["Permanent record <br/>of everything above."]:::log
     ASK -.-> LOG
     DO -.-> LOG
     CHECK -.-> LOG
