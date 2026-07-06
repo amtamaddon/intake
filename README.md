@@ -1,4 +1,4 @@
-# Intake
+# RSK Intake
 
 > The entire discipline of "harness engineering" is: push as much as possible into
 > deterministic code at the boundaries where correctness actually matters, and only let the
@@ -6,7 +6,7 @@
 
 Handing admin work involving money, client data, or PII to AI agents is risky without
 structure: nothing checks the work, nothing remembers what went wrong last time, and nothing
-stops an agent from declaring a mistake "done." Intake wraps every task in a plain-language
+stops an agent from declaring a mistake "done." RSK Intake wraps every task in a plain-language
 interview, a build-then-verify loop with a second, independent reviewer, and a human approval
 gate enforced at the file-permission level, not by asking nicely. The result: nothing
 involving money or a client goes out the door without an independent check and a real
@@ -82,7 +82,7 @@ everything feeds into.*
 
 ## Memory & observability
 
-Intake gets better at its job over time and keeps a record of what it costs to run it:
+RSK Intake gets better at its job over time and keeps a record of what it costs to run it:
 
 ```mermaid
 flowchart TB
@@ -175,5 +175,5 @@ These aren't just described behaviors an AI might follow. Each one is enforced m
 
 ## Layout
 
-Full directory map lives in [`CLAUDE.md`](CLAUDE.md). This file stays focused on what Intake
+Full directory map lives in [`CLAUDE.md`](CLAUDE.md). This file stays focused on what RSK Intake
 is and how to use it.

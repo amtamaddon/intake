@@ -1,6 +1,6 @@
-# Asking Intake for something — a plain-language guide
+# Asking RSK Intake for something — a plain-language guide
 
-**Intake** is the name for this system. You don't need to know anything technical to use it. You
+**RSK Intake** is the name for this system. You don't need to know anything technical to use it. You
 never need to open, write, or edit a script or a config file. Here's what actually happens.
 
 ## 1. Just say what you need
