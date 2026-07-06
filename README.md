@@ -17,32 +17,49 @@ how to just describe what you need in plain language. Everyone else, keep readin
 ## How it works
 
 ```mermaid
-flowchart LR
-    A["/new-task
-    plain-language interview"] --> B["/run-task
-    build → verify loop"]
-    B --> C{Impact class?}
-    C -->|internal| E["done"]
-    C -->|money / client-facing| D["scripts/approve.sh
-    human signs off"]
-    D --> E
-    E --> F["/close-session
-    update STATE.md"]
+flowchart TB
+    NT["/new-task<br/>plain-language interview<br/>→ confirmed goal.md + rubric.md + plan.md"] --> RT
+
+    subgraph RT["/run-task — the build → verify loop"]
+        direction TB
+        BLD["Builder subagent<br/>reads goal.md, plan.md, inputs/<br/>produces or revises output/"]
+        VER["Verifier subagent<br/>fresh context — never sees plan.md<br/>or worklog.md — grades output/<br/>against rubric.md"]
+        BLD --> VER
+        VER -->|FAIL, reasons in verdict| CHK{Budget left?<br/>Made progress?}
+        CHK -->|yes, retry| BLD
+        CHK -->|no, stop condition hit| ESC[Stop — escalate to a human]
+        VER -->|PASS| DONECHECK[scripts/check_done.sh]
+    end
+
+    DONECHECK --> GATE{Impact class?}
+    GATE -->|internal| CLOSE
+    GATE -->|money or client-facing| APR["scripts/approve.sh<br/>human reviews the verdict,<br/>types their name,<br/>writes APPROVAL.md — no agent can"]
+    APR --> CLOSE["/close-session<br/>update STATE.md, prune it,<br/>tally lesson confirmations"]
+
+    LOG[("worklog.md<br/>hash-chained audit trail")]
+    BLD -.logs every action.-> LOG
+    VER -.logs every verdict.-> LOG
+    APR -.logs the approval.-> LOG
+    CLOSE -.verifies the full chain.-> LOG
 ```
 
 1. **`/new-task`** — an interview, not a form. Describe what you need; Claude asks clarifying
    questions until it's confident it understood, then repeats its understanding back in plain
    English before writing anything. See [`.claude/skills/new-task/SKILL.md`](.claude/skills/new-task/SKILL.md).
-2. **`/run-task <slug>`** — a builder subagent produces the artifact; a separate verifier
-   subagent, with no access to the builder's reasoning, grades it against a written rubric.
-   Refuses to start at all if `goal.md` is incomplete (`scripts/check_goal.sh`), and iterates
-   build → verify up to a budget cap rather than looping forever.
+2. **`/run-task <slug>`** — the loop shown above: a builder subagent produces the artifact, a
+   separate verifier subagent (fresh context — it never sees the builder's reasoning) grades it
+   against a written rubric, and a FAIL sends it back to the builder with the verdict's required
+   fixes. Refuses to start at all if `goal.md` is incomplete (`scripts/check_goal.sh`), and stops
+   — rather than looping forever — once the iteration budget runs out or two tries in a row make
+   no real progress. Every action either subagent takes is written to `worklog.md`, the
+   hash-chained audit trail, as it happens.
 3. **Human approval, when it matters.** If the task's Impact class is `money` or
    `client-facing`, a human runs `scripts/approve.sh <task-dir>` themselves. No agent can write
    `APPROVAL.md` — it's denied at the permission level in `.claude/settings.json`, not just
    discouraged in a prompt.
 4. **`/close-session`** — updates `STATE.md` with what was learned, prunes it back under its
-   line cap, and tracks which lessons have been confirmed enough times to become a reusable skill.
+   line cap, tracks which lessons have been confirmed enough times to become a reusable skill,
+   and re-verifies the worklog's hash chain before considering the session closed.
 
 ## Example
 
