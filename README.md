@@ -3,8 +3,6 @@
 AI agents handle the admin busywork. A human signs off on anything involving money or a
 client — and nothing, not even the AI, can skip that step.
 
-It's a compliance layer for AI doing admin work. Every step is logged in a way that can't be quietly edited afterward." If they push further: the business case is that it lets non-technical staff hand real work to AI without an engineer babysitting every request, while keeping a defensible audit trail if a client, auditor, or regulator ever asks "who approved this and why.
-
 Handing admin work — money, client-facing communication, PII — to AI agents is risky without
 structure: nothing checks the work, nothing remembers what went wrong last time, and nothing
 stops an agent from declaring a mistake "done." Intake wraps every task in a plain-language
@@ -13,7 +11,9 @@ approval gate that's enforced at the file-permission level, not by asking nicely
 like the gutters on a bowling lane: it doesn't do the work for you, it just keeps the ball from
 going somewhere it shouldn't.
 
-It's a compliance layer for AI doing admin work — nothing involving money or a client goes out the door without an independent check and a human's actual sign-off, and every step is logged in a way that can't be quietly edited afterward." If they push further: the business case is that it lets non-technical staff hand real work to AI without an engineer babysitting every request, while keeping a defensible audit trail if a client, auditor, or regulator ever asks "who approved this and why.
+It's effectively a compliance layer for AI doing admin work — nothing involving money or a
+client goes out the door without an independent check and a human's actual sign-off, and every
+step is logged in a way that can't be quietly edited afterward.
 
 ## How it works
 
@@ -33,15 +33,15 @@ flowchart TB
     end
 
     DONECHECK --> GATE{Impact class?}
-    GATE -->|internal| CLOSE
+    GATE -->|internal| CLOSE["/close-session<br/>update STATE.md, prune it,<br/>tally lesson confirmations"]
     GATE -->|money or client-facing| APR["scripts/approve.sh<br/>human reviews the verdict,<br/>types their name,<br/>writes APPROVAL.md — no agent can"]
-    APR --> CLOSE["/close-session<br/>update STATE.md, prune it,<br/>tally lesson confirmations"]
+    APR --> CLOSE
 
     LOG[("worklog.md<br/>hash-chained audit trail")]
-    BLD -.logs every action.-> LOG
-    VER -.logs every verdict.-> LOG
-    APR -.logs the approval.-> LOG
-    CLOSE -.verifies the full chain.-> LOG
+    BLD -.->|logs every action| LOG
+    VER -.->|logs every verdict| LOG
+    APR -.->|logs the approval| LOG
+    CLOSE -.->|verifies the full chain| LOG
 ```
 
 1. **`/new-task`** — an interview, not a form. Describe what you need; Claude asks clarifying
