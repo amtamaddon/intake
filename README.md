@@ -81,7 +81,7 @@ everything feeds into.*
 ```
 > I have a batch of claim submissions from a provider. Pull out the CPT codes, the billed
 > amount, and the payer ID for each, and flag anything that doesn't match our payer rules.
-> Don't submit anything to the insurer directly, ask me if something's unclear.
+> Ask me if something's unclear.
 
 Claude: A few questions first: what should the output look like, a spreadsheet, a summary
 file, something else? ... Got it. Since this involves submitting to a payer, you'll approve
