@@ -30,25 +30,25 @@ flowchart TB
     classDef human fill:#fef3c7,stroke:#b45309,color:#451a03,stroke-width:2px
     classDef log fill:#f3f4f6,stroke:#6b7280,color:#1f2937,stroke-width:1px,stroke-dasharray:4 3
 
-    START(["Someone describes a task in plain English"]):::start --> ASK
+    START(["Task described simply"]):::start --> ASK
 
-    ASK["AI asks questions, then repeats the plan back in plain English"]:::ai --> OK{Sounds right?}
+    ASK["AI confirms the plan"]:::ai --> OK{Sounds right?}
     OK -->|no| ASK
     OK -->|yes| DO
 
     subgraph LOOP["Work happens, then gets checked automatically, more than once if needed"]
         direction TB
-        DO["An AI does the work"]:::ai --> CHECK["A second, independent AI checks it, without seeing how it was made"]:::ai
+        DO["An AI does the work"]:::ai --> CHECK["A second AI checks it"]:::ai
         CHECK -->|problem found| DO
         CHECK -->|looks right| PASS["Passed the check"]:::ai
     end
 
-    PASS --> RISK{Human Review needed?}
+    PASS --> RISK{Needs review?}
     RISK -->|no| DONE["Done automatically"]:::ai
-    RISK -->|yes| APPROVE["A human reviews it and personally approves it. No AI can do this step"]:::human
-    APPROVE --> DONE2["Done, only after a human said yes"]:::ai
+    RISK -->|yes| APPROVE["A human approves it"]:::human
+    APPROVE --> DONE2["Done, human approved"]:::ai
 
-    LOG["Permanent record of everything above. Can't be quietly edited later"]:::log
+    LOG["Permanent audit log"]:::log
     ASK -.-> LOG
     DO -.-> LOG
     CHECK -.-> LOG
@@ -85,14 +85,14 @@ flowchart TB
     classDef mem fill:#eef2ff,stroke:#4f46e5,color:#1e1b4b,stroke-width:1px
     classDef log fill:#f3f4f6,stroke:#6b7280,color:#1f2937,stroke-width:1px,stroke-dasharray:4 3
 
-    SESSTART(["A session starts"]) --> READS["Reads recent notes in STATE.md and durable, always-loaded facts in MEMORY.md"]:::mem
+    SESSTART(["A session starts"]) --> READS["Reads STATE + MEMORY"]:::mem
     READS --> NEWTASK["A new task is described"]
-    NEWTASK --> LOOKUP["Checks past tasks and domain procedures for anything relevant"]:::mem
-    LOOKUP --> WORKHAPPENS["Work happens, see the loop above"]
-    WORKHAPPENS --> TRACELOG["Cost, time, and token use for every step is logged to a trace file"]:::log
+    NEWTASK --> LOOKUP["Checks past precedent"]:::mem
+    LOOKUP --> WORKHAPPENS["Work happens, above"]
+    WORKHAPPENS --> TRACELOG["Logs cost per step"]:::log
     TRACELOG --> SESSEND["Session ends"]
-    SESSEND --> INDEXED["This task gets indexed for future lookups"]:::mem
-    SESSEND --> PROMOTED["Facts that keep holding up get promoted into durable memory"]:::mem
+    SESSEND --> INDEXED["Task gets indexed"]:::mem
+    SESSEND --> PROMOTED["Facts promoted to memory"]:::mem
 ```
 
 - **`MEMORY.md`** — durable, always-loaded facts (environment quirks, rules that bite, domain
