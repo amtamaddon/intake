@@ -4,14 +4,8 @@
 > deterministic code at the boundaries where correctness actually matters, and only let the
 > probabilistic part operate in the middle, fenced in on both sides.
 
-Handing admin work involving money, client data, or PII to AI agents is risky without
-structure: nothing checks the work, nothing remembers what went wrong last time, and nothing
-stops an agent from declaring a mistake "done." RSK Intake wraps every task in a plain-language
-interview, a build-then-verify loop with a second, independent reviewer, and a human approval
-gate enforced at the file-permission level, not by asking nicely. The result: nothing
-involving money or a client goes out the door without an independent check and a real
-person's sign-off. Think of it like the gutters on a bowling lane: it doesn't do the work for
-you, it just keeps the ball from going somewhere it shouldn't.
+This is a structure to implement a build-then-verify loop with a second, independent reviewer agent, human approval
+gates, and stored memories for continuous improvement in agent behavior. Think of it like the gutters on a bowling lane: it doesn't do the work for you, it just keeps the ball from going somewhere it shouldn't.
 
 ## Getting started
 
