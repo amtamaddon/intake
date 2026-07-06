@@ -44,7 +44,17 @@ Do not proceed to step 3 until they've explicitly confirmed. If their answer rev
 correct your understanding and say it back again — repeat until confirmed. This confirmation is
 the actual substance of "95% sure," not a formality to rush past.
 
-## 3. Now do the technical translation — the requester doesn't need to see this part
+## 3. Check episodic memory for precedent
+
+Before writing anything, run `python scripts/recall.py find "<key terms from the request>"` (and
+`recall.py failures "<key terms>"` if the domain suggests past failures are likely, e.g. a payer
+denial code). If there's a relevant precedent — a similar past task, a prior failure mode, a
+realistic iteration count — fold it into `plan.md` and the rubric in the next step. Note each
+result's status (`active`/`done`/`archived`) explicitly when citing it; a done task from three
+months ago is not the same kind of precedent as one still active. If nothing relevant turns up,
+say so and move on — this step is a lookup, not a requirement to find something.
+
+## 4. Now do the technical translation — the requester doesn't need to see this part
 
 Once confirmed:
 
@@ -53,17 +63,20 @@ Once confirmed:
 2. Write `goal.md` in full — no `FILL-ME` left anywhere — translating the confirmed
    understanding into End State, Verification Method, House Rules, and Stop Conditions. Set Impact
    class (`internal` / `money` / `client-facing`) from what was confirmed, not a guess. Set Budget
-   to 3 iterations / 30 minutes unless they said otherwise.
+   to 3 iterations / 30 minutes unless they said otherwise. If the task involves a payer/denial/
+   resubmission, add a `- **Tags:**` line naming the payer and code, and check
+   `scripts/find_procedure.sh` for a governing procedure (see procedures/_INDEX.md once Phase 4
+   lands).
 3. Write `rubric.md` yourself, as the planner, from the confirmed Verification Method — concrete,
    checkable criteria a stranger could apply. This must be frozen before `/run-task` runs; don't
    let it get written or adjusted after seeing output later.
 4. Write a draft `plan.md` — your own proposed approach for the builder to follow — since you (the
-   main session) are the planner here, not the builder.
+   main session) are the planner here, not the builder. Fold in any precedent from step 3.
 5. Save anything the requester shared into `inputs/`.
 6. Create an empty `worklog.md` — its first real content must come from `scripts/log_append.sh`,
    never a direct write.
 
-## 4. Hand back, in plain language
+## 5. Hand back, in plain language
 
 Tell the requester, in a sentence or two: what you've set up, and that you're ready to start
 whenever they say go (`/run-task`). Do not show them raw `goal.md` syntax unless they ask to see
