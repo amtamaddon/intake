@@ -19,6 +19,14 @@ human gate is enforced by permission deny rules in `.claude/settings.json` — n
 - An actual context-contamination incident occurs that subagent isolation failed to prevent.
 - More than two concurrent long-running workers become routine.
 
+If the first trigger fires, evaluate **Hermes Agent** (NousResearch, MIT, github.com/NousResearch/hermes-agent)
+first — it has a genuine unattended cron scheduler, curated cross-session memory, and a real skills
+system, and is far more mature than anything else surveyed (210k stars, active). Its gaps as of
+2026-07: no described audit-trail tamper-evidence, no hard iteration/budget stop conditions, no
+cost-based model routing policy, and "isolated subagents" isn't specified as grading-independence
+isolation — all of Intake's actual enforcement layer would still need to be built on top of it,
+not inherited from it. Re-verify these gaps before migrating; this is a 2026-07 snapshot.
+
 ## Roles and model routing
 
 | Role | Runs as | Model | Why |
