@@ -1,4 +1,4 @@
-# Intake
+# INTAKE acts the same way gutters on a bowling lane do
 
 An agentic harness for admin-services automation. See `CLAUDE.md` for the full constitution
 (roles, model routing, house rules, session protocol).
