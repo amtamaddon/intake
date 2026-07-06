@@ -1,7 +1,7 @@
-# Asking for something — a plain-language guide
+# Asking Intake for something — a plain-language guide
 
-You don't need to know anything technical to use this. You never need to open, write, or edit a
-script or a config file. Here's what actually happens.
+**Intake** is the name for this system. You don't need to know anything technical to use it. You
+never need to open, write, or edit a script or a config file. Here's what actually happens.
 
 ## 1. Just say what you need
 

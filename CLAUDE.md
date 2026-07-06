@@ -1,11 +1,12 @@
-# Admin-Services Harness — Constitution
+# Intake — Constitution
 
 This file governs every session working in this repo. Read it, and STATE.md, before doing anything else.
 
 ## What this is
 
-An agentic harness for admin-services automation. Real compliance stakes (finance/admin client data) —
-the audit trail and the human gate on money/client-facing work are non-negotiable, not nice-to-haves.
+**Intake** — an agentic harness for admin-services automation. Real compliance stakes (finance/admin
+client data) — the audit trail and the human gate on money/client-facing work are non-negotiable,
+not nice-to-haves.
 
 ## Substrate
 

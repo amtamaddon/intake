@@ -1,4 +1,4 @@
-# Admin-Services Harness
+# Intake
 
 An agentic harness for admin-services automation. See `CLAUDE.md` for the full constitution
 (roles, model routing, house rules, session protocol).
