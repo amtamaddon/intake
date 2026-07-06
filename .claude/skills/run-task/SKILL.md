@@ -22,12 +22,17 @@ For each iteration (starting at 1):
 
 1. Log `scripts/log_append.sh <task-dir> "orchestrator" "ITERATION <n>/<max> START"` — this is
    the loop's own bookkeeping, and it lives in the tamper-evident worklog like everything else.
-2. Spawn the `builder` subagent on this task dir. Give it nothing but the task dir path — it reads
-   `goal.md`, `plan.md`, `inputs/`, and the latest verdict (if any) itself.
+2. Note the wall-clock time, then spawn the `builder` subagent on this task dir. Give it nothing
+   but the task dir path — it reads `goal.md`, `plan.md`, `inputs/`, and the latest verdict (if
+   any) itself. After it returns, record one trace event:
+   `python scripts/trace_append.py <task-dir> subagent --actor builder --model sonnet --iteration <n> --latency <seconds> --outcome "<what happened>"`
+   — add `--input-tokens`/`--output-tokens`/`--cache-read-tokens` if the Agent tool result surfaces
+   them; if it doesn't, leave them off rather than guess (they're nullable by design; confirming
+   what's actually available is a first-real-task follow-up, not something to fake now).
 3. Once the builder reports the artifact in `output/` is ready, spawn the `verifier` subagent
    (default model: sonnet, per its frontmatter) with the restricted spawn prompt described in
    `.claude/skills/verify-task/SKILL.md` (step 3) — never paste builder output or your own
-   reasoning into that prompt.
+   reasoning into that prompt. Record a trace event for it the same way, `--actor verifier`.
 4. If the interim (sonnet) verdict is **FAIL**: log
    `scripts/log_append.sh <task-dir> "orchestrator" "VERDICT FAIL iter <n>: <criteria that failed>"`,
    then check the stop conditions below before looping to the next iteration. If the failed
@@ -56,8 +61,10 @@ For each iteration (starting at 1):
   more iterations are burning budget, not converging.
 - **Budget / wall-clock cap**: compare the current time to the first worklog entry's timestamp
   (`TASK START`, written by `/new-task` or this skill's first run) against the cap in `goal.md`.
-  True dollar-cost metering isn't available at this layer; the iteration cap combined with
-  CLAUDE.md's model-routing table is the deliberate cost-proxy approximation for the MVP.
+  The iteration cap combined with CLAUDE.md's model-routing table remains the primary cost-proxy
+  approximation, but `python scripts/trace_report.py <task-dir>` now gives a real running cost total if
+  token capture is working — worth checking once real tasks accumulate, and a candidate to
+  eventually replace the proxy with an actual `cost_usd` threshold. Not built yet; noted for later.
 - **House-rule trigger**: if the builder or verifier's worklog entries indicate contact with a
   house rule from `goal.md` §3, stop immediately regardless of iteration count and escalate.
 
@@ -66,7 +73,21 @@ paths write `APPROVAL.md` or otherwise force the task closed — that remains a 
 
 ## 3. Closing out
 
-Once an opus PASS verdict exists, run `scripts/check_done.sh <task-dir>`:
+Once an opus PASS verdict exists, and before running `check_done.sh`, anchor the trace file into
+the tamper-evident worklog (skip this if the task has no `trace.jsonl` — nothing to anchor):
+
+```
+sha256sum <task-dir>/trace.jsonl   # get the hash
+wc -l <task-dir>/trace.jsonl       # get the event count
+scripts/log_append.sh <task-dir> "orchestrator" "TRACE ANCHOR: <n> events | sha256:<hash>"
+```
+
+This is what makes `trace.jsonl` tamper-evident despite living outside the hash chain itself —
+telemetry doesn't belong interleaved with the decision narrative (an order of magnitude more
+volume, mostly interesting in aggregate), but one anchor entry means any edit to the trace file
+after this point is detectable by recomputing its hash and comparing.
+
+Now run `scripts/check_done.sh <task-dir>`:
 
 - If it exits 0: the task's automated gates are satisfied. If Impact class is `internal`, tell the
   user the task is ready to archive. If Impact class is `money` or `client-facing`,

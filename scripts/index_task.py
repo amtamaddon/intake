@@ -5,6 +5,7 @@ verify -- the DB must never contain data the worklog chain doesn't vouch for.
 
 Usage: index_task.py <task-dir>
 """
+import json
 import re
 import sqlite3
 import subprocess
@@ -122,6 +123,22 @@ def parse_approval(task_dir: Path):
     return m.group(1).strip() if m else None
 
 
+def parse_trace(task_dir: Path):
+    path = task_dir / "trace.jsonl"
+    if not path.exists():
+        return []
+    events = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue  # a malformed line shouldn't break indexing the rest
+    return events
+
+
 def index_task(task_dir: Path):
     task_dir = task_dir.resolve()
     task_id = task_dir.name
@@ -139,6 +156,7 @@ def index_task(task_dir: Path):
     title, impact, tags, goal_text = parse_goal(task_dir)
     verdicts = parse_verdicts(task_dir)
     approved_by = parse_approval(task_dir)
+    trace_events = parse_trace(task_dir)
 
     iterations = sum(1 for e in entries if re.match(r"ITERATION \d+/\d+ START", e["message"]))
     created_ts = entries[0]["ts"] if entries else None
@@ -164,6 +182,7 @@ def index_task(task_dir: Path):
         cur.execute("DELETE FROM tasks_fts WHERE task_id = ?", (task_id,))
         cur.execute("DELETE FROM worklog_fts WHERE task_id = ?", (task_id,))
         cur.execute("DELETE FROM verdicts_fts WHERE task_id = ?", (task_id,))
+        cur.execute("DELETE FROM trace_events WHERE task_id = ?", (task_id,))
         cur.execute("DELETE FROM tasks WHERE task_id = ?", (task_id,))  # cascades
 
         cur.execute(
@@ -195,11 +214,23 @@ def index_task(task_dir: Path):
             cur.execute("INSERT INTO verdicts_fts (failed_criteria, task_id, n) VALUES (?,?,?)",
                         (v["failed_criteria"], task_id, v["n"]))
 
+        for te in trace_events:
+            cur.execute(
+                """INSERT INTO trace_events (task_id, ts, event, actor, model, iteration,
+                   latency_s, input_tokens, output_tokens, cache_read_tokens,
+                   cache_write_tokens, cost_usd, outcome)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (task_id, te.get("ts"), te.get("event"), te.get("actor"), te.get("model"),
+                 te.get("iteration"), te.get("latency_s"), te.get("input_tokens"),
+                 te.get("output_tokens"), te.get("cache_read_tokens"), te.get("cache_write_tokens"),
+                 te.get("cost_usd"), te.get("outcome")),
+            )
+
         con.commit()
     finally:
         con.close()
 
-    print(f"index_task: OK -- {task_id} ({len(entries)} worklog entries, {len(verdicts)} verdicts, status={status})")
+    print(f"index_task: OK -- {task_id} ({len(entries)} worklog entries, {len(verdicts)} verdicts, {len(trace_events)} trace events, status={status})")
     return True
 
 

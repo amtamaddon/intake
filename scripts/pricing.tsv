@@ -1,0 +1,4 @@
+model	usd_per_mtok_in	usd_per_mtok_out	usd_per_mtok_cache_read
+sonnet	3.00	15.00	0.30
+opus	15.00	75.00	1.50
+haiku	0.80	4.00	0.08
