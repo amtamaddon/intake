@@ -1,6 +1,6 @@
 # STATE — read at session start, updated only via /close-session
 
-Last updated: 2026-07-06 | Line count: 53/200
+Last updated: 2026-07-06 | Line count: 58/200
 
 ## 1. Verified Facts
 - The full build->verify->fail->iterate->pass->close-session loop works end to end against real
@@ -29,25 +29,30 @@ the baseline house rules that apply from day one live in CLAUDE.md)
 one confirmation each; see there)
 
 ## 5. Last Session Summary
-Repo is live at github.com/amtamaddon/intake (private). README rewritten (tagline, Mermaid
-flow, guardrails, docs table). Hermes Agent evaluated in depth and rejected (see CLAUDE.md) --
-decisive gap is no per-path file-write deny, can't replicate the APPROVAL.md/worklog.md guarantee.
+Built the full memory/context-management/eval-observe layer across 5 phases (Fable-designed,
+Sonnet-built, each phase tested against real fixtures before commit): (1) evals/ regression
+suite (9 deterministic cases) + a pre-commit hook gating any change to scripts/.claude/skills/
+templates/evals; (2) MEMORY.md, always-loaded 4000-char-capped durable memory, distinct from
+CLAUDE.md (static) and STATE.md (pruned session residue), written only via memory_update.sh;
+(3) memory/episodes.db, a SQLite+FTS5 episodic index over past tasks (derived/rebuildable, never
+a second source of truth -- flat files win on disagreement), queried via recall.py; (4)
+procedures/, domain RCM fulfillment playbooks separate from skills/, draft-until-human-approved,
+looked up via find_procedure.sh; (5) tracing -- trace.jsonl per task, cost computed from
+scripts/pricing.tsv, anchored into the hash chain via one TRACE ANCHOR entry per task rather than
+interleaved with the decision narrative.
 
-n8n MCP server registered at user scope (2026-07-06), pointing at amtamaddon.app.n8n.cloud --
-OAuth completes on next Claude Code restart. n8n integration scoped (not built): self-host
-recommended (Execute Command node is disabled on n8n Cloud); first workflow to build is
-Schedule Trigger -> Execute Command (`claude -p "/run-task <dir>"`) on one low-stakes internal
-task -> Slack message, no approval-branch logic yet. Hard rule for that build: n8n must only
-invoke a fixed, non-parameterized command and must never touch approve.sh or the worklog --
-notify-only for anything gated. Also evaluated (research only, not built): a Fable/HuggingFace
-project visualizing a multi-agent collaboration as an isometric town (Cafe/Courthouse/Printing
-Press mapping to message-board/review/publish). Recommendation: worth doing later as a read-only
-visualization fed by the existing hash-chained worklog (translate worklog rows to
-{agent, location, action, timestamp}), estimated 3-5 days for an MVP with off-the-shelf assets --
-not a priority over core task work, and never wire it near the approval-gate logic.
+Real bugs found and fixed while building, not hypothetical: `grep -i` + `-F` core-dumps on this
+machine's GNU grep 3.0 (worked around with -E + escaping, now in MEMORY.md); a `set -e` gotcha in
+an eval script itself (unguarded `cmd; rc=$?` aborts before rc=$? is set); Python's stdout
+defaulted to cp1252 on this Windows machine, mangling em-dashes on display only (data was stored
+correctly). Also evaluated an arxiv paper on "ghost memory" (stale/current facts mixing during
+retrieval) -- already defended against by STATE.md's superseded-by convention and procedures/'s
+version+status fields; concrete takeaway applied: recall.py and find_procedure.sh always print
+status (active/done/archived) explicitly, never as an undifferentiated flat list.
 
-Next: (1) restart Claude Code rooted at this folder (not a parent dir) to fix custom-agent
-discovery and complete n8n OAuth; (2) collect the four real specifics for the
-client-intake-processing task (fields, source docs, escalation target, PII rule) and run it for
-real; (3) once OAuth completes, build the one low-stakes n8n workflow above before anything more
-ambitious.
+Next: (1) restart Claude Code rooted at this folder (not a parent dir) -- still the standing
+blocker for real custom-agent discovery, hasn't happened yet across this whole session; (2)
+collect the four real specifics for the client-intake-processing task (fields, source docs,
+escalation target, PII rule) and run it for real, which will also answer the open question of
+what token/cost data the orchestrator can actually capture per subagent spawn; (3) complete n8n
+OAuth and build the one low-stakes Schedule-Trigger workflow already scoped.
