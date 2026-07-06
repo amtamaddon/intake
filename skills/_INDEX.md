@@ -2,7 +2,16 @@
 
 | Skill | Purpose | Promoted from | Date |
 |---|---|---|---|
-| (none yet) | | | |
+| `humanizer` | Strip AI writing tells from prose the builder produces for a human reader | **imported**, human-requested — see note below | 2026-07-06 |
+
+**Exception to the two-confirmation rule, documented rather than silent:** skills here are
+normally *earned* — promoted only after a lesson is confirmed by two distinct tasks. `humanizer`
+is the one deliberate exception: forked from an external, actively-maintained source
+(github.com/blader/humanizer) at the user's explicit request, not grown from Intake's own task
+history. Its Provenance section says so plainly. This is the same exception pattern
+`procedures/` already uses (external-authority content, human-approved, not lesson-earned) —
+future externally-sourced skills should follow this precedent rather than quietly skip the
+promotion pipeline.
 
 # Candidate Lessons (not yet skills)
 
