@@ -47,7 +47,7 @@ flowchart TB
         CHECK -->|looks right| PASS["Passed the check"]:::ai
     end
 
-    PASS --> RISK{Money or a<br/>client involved?}
+    PASS --> RISK{Human Review needed?}
     RISK -->|no| DONE["Done automatically"]:::ai
     RISK -->|yes| APPROVE["A human reviews it and personally<br/>approves it. No AI can do this step"]:::human
     APPROVE --> DONE2["Done, only after<br/>a human said yes"]:::ai
@@ -87,7 +87,6 @@ RSK Intake gets better at its job over time and keeps a record of what it costs 
 ```mermaid
 flowchart TB
     classDef mem fill:#eef2ff,stroke:#4f46e5,color:#1e1b4b,stroke-width:1px
-    classDef eval fill:#fef3c7,stroke:#b45309,color:#451a03,stroke-width:1px
     classDef log fill:#f3f4f6,stroke:#6b7280,color:#1f2937,stroke-width:1px,stroke-dasharray:4 3
 
     SESSTART(["A session starts"]) --> READS["Reads two memory files first:<br/>recent notes (STATE.md) and durable,<br/>always-loaded facts (MEMORY.md)"]:::mem
@@ -98,10 +97,6 @@ flowchart TB
     TRACELOG --> SESSEND["Session ends"]
     SESSEND --> INDEXED["This task gets indexed for<br/>future lookups"]:::mem
     SESSEND --> PROMOTED["Facts that keep holding up get<br/>promoted into durable memory"]:::mem
-
-    CHANGE["Anyone changes how the<br/>harness itself works"] --> GATE2{Regression tests pass?}
-    GATE2 -->|no| BLOCK["Blocked from shipping"]:::eval
-    GATE2 -->|yes| SHIP["Change allowed through"]
 ```
 
 - **`MEMORY.md`** — durable, always-loaded facts (environment quirks, rules that bite, domain
