@@ -19,30 +19,37 @@ step is logged in a way that can't be quietly edited afterward.
 
 ```mermaid
 flowchart TB
-    NT["/new-task<br/>plain-language interview<br/>→ confirmed goal.md + rubric.md + plan.md"] --> RT
+    classDef start fill:#ecfdf5,stroke:#047857,color:#022c22,stroke-width:1px
+    classDef ai fill:#eef2ff,stroke:#4f46e5,color:#1e1b4b,stroke-width:1px
+    classDef human fill:#fef3c7,stroke:#b45309,color:#451a03,stroke-width:2px
+    classDef log fill:#f3f4f6,stroke:#6b7280,color:#1f2937,stroke-width:1px,stroke-dasharray:4 3
 
-    subgraph RT["/run-task — the build → verify loop"]
+    START(["Someone describes a task<br/>in plain English"]):::start --> ASK
+
+    ASK["AI asks questions, then repeats the<br/>plan back in plain English"]:::ai --> OK{Sounds right?}
+    OK -->|no| ASK
+    OK -->|yes| DO
+
+    subgraph LOOP["Work happens, then gets checked — automatically, more than once if needed"]
         direction TB
-        BLD["Builder subagent<br/>reads goal.md, plan.md, inputs/<br/>produces or revises output/"]
-        VER["Verifier subagent<br/>fresh context — never sees plan.md<br/>or worklog.md — grades output/<br/>against rubric.md"]
-        BLD --> VER
-        VER -->|FAIL, reasons in verdict| CHK{Budget left?<br/>Made progress?}
-        CHK -->|yes, retry| BLD
-        CHK -->|no, stop condition hit| ESC[Stop — escalate to a human]
-        VER -->|PASS| DONECHECK[scripts/check_done.sh]
+        DO["An AI does the work"]:::ai --> CHECK["A second, independent AI checks it<br/>without seeing how it was made"]:::ai
+        CHECK -->|problem found| DO
+        CHECK -->|looks right| PASS["Passed the check"]:::ai
     end
 
-    DONECHECK --> GATE{Impact class?}
-    GATE -->|internal| CLOSE["/close-session<br/>update STATE.md, prune it,<br/>tally lesson confirmations"]
-    GATE -->|money or client-facing| APR["scripts/approve.sh<br/>human reviews the verdict,<br/>types their name,<br/>writes APPROVAL.md — no agent can"]
-    APR --> CLOSE
+    PASS --> RISK{Money or a<br/>client involved?}
+    RISK -->|no| DONE["Done automatically"]:::ai
+    RISK -->|yes| APPROVE["A human reviews it and personally<br/>approves — no AI can do this step"]:::human
+    APPROVE --> DONE2["Done, only after<br/>a human said yes"]:::ai
 
-    LOG[("worklog.md<br/>hash-chained audit trail")]
-    BLD -.->|logs every action| LOG
-    VER -.->|logs every verdict| LOG
-    APR -.->|logs the approval| LOG
-    CLOSE -.->|verifies the full chain| LOG
+    LOG[("A permanent record of everything<br/>above — can't be quietly edited later")]:::log
+    ASK -.-> LOG
+    DO -.-> LOG
+    CHECK -.-> LOG
+    APPROVE -.-> LOG
 ```
+
+*Blue = AI acting on its own. Amber = a human must act. Grey = the permanent audit log everything feeds into.*
 
 1. **`/new-task`** — an interview, not a form. Describe what you need; Claude asks clarifying
    questions until it's confident it understood, then repeats its understanding back in plain
