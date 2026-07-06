@@ -13,6 +13,10 @@ check "settings.json denies Write on APPROVAL.md" "grep -q 'Write(\*\*/APPROVAL.
 check "settings.json denies Edit on APPROVAL.md"  "grep -q 'Edit(\*\*/APPROVAL.md)' '$settings'"
 check "settings.json denies Write on worklog.md"  "grep -q 'Write(\*\*/worklog.md)' '$settings'"
 check "settings.json denies Edit on worklog.md"   "grep -q 'Edit(\*\*/worklog.md)' '$settings'"
+check "settings.json denies Write on MEMORY.md"   "grep -q 'Write(MEMORY.md)' '$settings'"
+check "settings.json denies Edit on MEMORY.md"    "grep -q 'Edit(MEMORY.md)' '$settings'"
+check "settings.json denies Write on trace.jsonl" "grep -q 'Write(\*\*/trace.jsonl)' '$settings'"
+check "settings.json denies Edit on trace.jsonl"  "grep -q 'Edit(\*\*/trace.jsonl)' '$settings'"
 
 verifier="$repo_root/.claude/agents/verifier.md"
 check "verifier.md tools line excludes Write" "! grep -m1 '^tools:' '$verifier' | grep -qw Write"

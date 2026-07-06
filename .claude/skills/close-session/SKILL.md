@@ -1,6 +1,6 @@
 ---
 name: close-session
-description: Run at the end of every session. Updates STATE.md's five sections, prunes it back under the 200-line cap, tallies lesson-confirmation counts, and pushes the audit trail. Do not end a session without this.
+description: Run at the end of every session. Updates STATE.md's five sections, prunes it back under the 200-line cap, tallies lesson-confirmation counts, proposes MEMORY.md promotions, and pushes the audit trail. Do not end a session without this.
 ---
 
 ## 1. Update STATE.md
@@ -43,7 +43,27 @@ For each new candidate lesson observed this session:
     STATE.md's Lessons Learned section, collapse that line to a single pointer:
     `L-n → skills/<name>/SKILL.md`.
 
-## 3. Prune STATE.md — mandatory, not optional
+## 3. Promote durable facts to MEMORY.md
+
+Scan STATE.md's Verified Facts for any fact that: (a) has held for 3+ sessions or 30+ days
+unmodified, (b) is still operationally load-bearing, and (c) isn't tied to an open thread that
+might still change. For each candidate, ask the user by name: *"Promote '<fact>' to MEMORY.md?"*
+Do not promote without a yes — the same consent pattern as skill promotion (step 2).
+
+On yes:
+1. Draft the full proposed `MEMORY.md` (existing content plus the new bullet, tagged
+   `[source | today's date]`, under the right section — Environment & substrate, Operational
+   rules that bite, or Domain constants) to a scratch file.
+2. Run `scripts/memory_update.sh <scratch-file>`. If it refuses (over the 4,000-character cap, or
+   a bullet missing its `[source | date]` tag), it prints which bullets to evict first
+   (oldest-last-confirmed-date first) — remove those from your draft and retry. Never hand-edit
+   `MEMORY.md` directly; Write/Edit are denied on it, and this script is the only sanctioned door.
+3. Once installed, collapse the STATE.md line to a pointer: `<fact summary> → MEMORY.md`.
+
+Evicted bullets go to `archive/MEMORY-archive.md` under a dated heading, same as STATE.md's
+pruning convention below.
+
+## 4. Prune STATE.md — mandatory, not optional
 
 Check the line count. The session is **not closed** until the file is at or under the 200-line
 cap stated in its own header.
@@ -58,7 +78,7 @@ cap stated in its own header.
 The archive is append-only prose and is never read at session start — don't reference it as if it
 were live state.
 
-## 4. Persist the audit trail
+## 5. Persist the audit trail
 
 If this project is under git, commit and push now (`git add -A && git commit -m "session close: <date>" && git push`,
 confirming with the user first if a remote isn't already configured). This is the cheap mitigation

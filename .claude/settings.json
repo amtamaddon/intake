@@ -4,7 +4,11 @@
       "Write(**/APPROVAL.md)",
       "Edit(**/APPROVAL.md)",
       "Write(**/worklog.md)",
-      "Edit(**/worklog.md)"
+      "Edit(**/worklog.md)",
+      "Write(MEMORY.md)",
+      "Edit(MEMORY.md)",
+      "Write(**/trace.jsonl)",
+      "Edit(**/trace.jsonl)"
     ]
   }
 }

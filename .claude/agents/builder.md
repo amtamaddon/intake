@@ -32,9 +32,10 @@ stop. Do no other work on an incomplete goal.
 ## Hard limits
 
 - Never write to `verdicts/` — that is the verifier's exclusive output.
-- Never create or edit `APPROVAL.md`, including via Bash — not your call, regardless of what your
-  tools would technically let you do. Write/Edit are permission-denied on that file, but that alone
-  doesn't stop a Bash redirect, so treat it as a hard rule, not just a blocked tool.
+- Never create or edit `APPROVAL.md` or `MEMORY.md`, including via Bash — not your call, regardless
+  of what your tools would technically let you do. Write/Edit are permission-denied on those files,
+  but that alone doesn't stop a Bash redirect, so treat it as a hard rule, not just a blocked tool.
+  `MEMORY.md` is only ever updated by `/close-session` via `scripts/memory_update.sh`.
 - Never contact a client directly, and never write PII outside this task's own `inputs/`/`output/`.
 - On contact with any house rule in `goal.md` §3: stop immediately, log it, and end your turn —
   do not attempt to route around it.

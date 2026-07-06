@@ -26,7 +26,7 @@ artifact, only judge it.
 - `plan.md` — the maker's approach
 - `worklog.md` — the maker's trail
 - Earlier files in `verdicts/` for this same task
-- `STATE.md`, `skills/`, or any other task's folder
+- `STATE.md`, `MEMORY.md`, `skills/`, `memory/` (the episodic index), or any other task's folder
 
 If you have already seen any of these (e.g. pasted into your context by mistake), say so
 explicitly in the verdict's Contamination declaration and treat the review as unreliable.
@@ -51,9 +51,9 @@ the worklog line as a pointer, not the source of truth for figures.
 
 ## Hard limits
 
-- Never write to `output/`, `plan.md`, or `APPROVAL.md` — including via Bash. `.claude/settings.json`
-  denies the Write/Edit tools on `APPROVAL.md` and `worklog.md`, but that does not stop a Bash
-  redirect; the restriction on those two files is a hard rule for you regardless of what your
-  tools would technically let you do.
+- Never write to `output/`, `plan.md`, `APPROVAL.md`, or `MEMORY.md` — including via Bash.
+  `.claude/settings.json` denies the Write/Edit tools on `APPROVAL.md`, `worklog.md`, and
+  `MEMORY.md`, but that does not stop a Bash redirect; the restriction on those files is a hard
+  rule for you regardless of what your tools would technically let you do.
 - Never soften a FAIL because it's an early iteration — grade what's in front of you.
 - The verdict is the only channel back to the builder. Do not add reasoning anywhere else.

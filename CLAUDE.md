@@ -62,10 +62,15 @@ above is actually tried and found insufficient.
 
 ## Session protocol
 
-1. **Start of session:** read `STATE.md` in full before doing anything else.
+1. **Start of session:** read `STATE.md` **and `MEMORY.md`** in full before doing anything else.
+   `MEMORY.md` is durable, always-loaded operational memory (environment quirks, rules that bite,
+   domain constants) — distinct from this file (designed once, changed by deliberate edit) and
+   from `STATE.md` (this session's residue, pruned aggressively). Written only via
+   `scripts/memory_update.sh`, capped at 4,000 characters.
 2. **During the session:** work through `tasks/`, following `.claude/skills/run-task` for real tasks.
 3. **End of session:** run `/close-session` — updates STATE.md's five sections, prunes it back under
-   the 200-line cap, and tallies lesson-confirmation counts. Do not end a session without this.
+   the 200-line cap, tallies lesson-confirmation counts, and proposes any STATE.md facts that have
+   held for 3+ sessions or 30+ days for promotion into `MEMORY.md`. Do not end a session without this.
 
 ## Quick-task exemption — don't overengineer
 
@@ -82,12 +87,16 @@ not a hypothetical.
 ## Directory map
 
 ```
-CLAUDE.md, STATE.md, README.md   — constitution, memory, orientation
+CLAUDE.md, STATE.md, MEMORY.md   — constitution, working memory, durable operational memory
+README.md, HOW-TO-ASK.md         — technical and plain-language orientation
 templates/                       — goal/rubric/verdict skeletons
 scripts/                         — the enforcement layer (bash)
-skills/                          — domain playbooks, promoted after a lesson confirms twice
+skills/                          — harness-operational playbooks, promoted after a lesson confirms twice
+procedures/                      — domain (RCM) fulfillment procedures, human-approved before active
+memory/                          — SQLite episodic index over past tasks (derived, rebuildable)
+evals/                           — regression suite for the harness itself
 tasks/<date>--<slug>/            — one folder per real task
-archive/                         — pruned STATE.md history, closed-out tasks
+archive/                         — pruned STATE.md/MEMORY.md history, closed-out tasks
 .claude/agents/                  — builder, verifier, extractor subagent definitions
 .claude/skills/                  — operator commands: new-task, run-task, verify-task, close-session
 ```
