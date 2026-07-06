@@ -15,17 +15,30 @@ Plain Claude Code. No external framework. Fresh-context isolation comes from cus
 human gate is enforced by permission deny rules in `.claude/settings.json` — not by convention.
 
 **Migration triggers** (revisit the substrate decision on evidence, not mood):
-- Tasks need to run unattended/scheduled without a human at the terminal.
+- Tasks need to run unattended/scheduled without a human at the terminal. **This trigger has not
+  fired and the first answer is NOT a new platform**: run `claude -p "/run-task <dir>"` headless,
+  triggered by the OS scheduler (Windows Task Scheduler / cron) — this keeps 100% of the
+  enforcement layer (`.claude/settings.json` denies and all scripts apply identically headless).
+  Note also that unattended runs are structurally limited to `internal`-class tasks regardless of
+  substrate — the human approval gate cannot be satisfied unattended, by design. Only evaluate a
+  new platform if OS-scheduler + headless `claude -p` is tried and proves insufficient (e.g. needs
+  messaging-platform delivery, cheap-poll wake gating, or multi-day always-on operation).
 - An actual context-contamination incident occurs that subagent isolation failed to prevent.
 - More than two concurrent long-running workers become routine.
 
-If the first trigger fires, evaluate **Hermes Agent** (NousResearch, MIT, github.com/NousResearch/hermes-agent)
-first — it has a genuine unattended cron scheduler, curated cross-session memory, and a real skills
-system, and is far more mature than anything else surveyed (210k stars, active). Its gaps as of
-2026-07: no described audit-trail tamper-evidence, no hard iteration/budget stop conditions, no
-cost-based model routing policy, and "isolated subagents" isn't specified as grading-independence
-isolation — all of Intake's actual enforcement layer would still need to be built on top of it,
-not inherited from it. Re-verify these gaps before migrating; this is a 2026-07 snapshot.
+**Hermes Agent** (NousResearch, MIT, github.com/NousResearch/hermes-agent, 210k stars, active) was
+evaluated in depth 2026-07 as a candidate and rejected for now — logged here so it isn't
+re-litigated from scratch. Real strengths: genuine hard iteration caps (`agent/iteration_budget.py`),
+real fresh-context subagent delegation (one-way summary relay, no parent history), a real cron
+daemon, and an agentskills.io-compatible skill system. Confirmed, decisive gap: **no per-path
+file-write deny mechanism** — its approval system gates terminal command patterns, not native
+file-write/patch tools, so Intake's two non-negotiable guarantees (no agent can write
+`APPROVAL.md` or `worklog.md`) cannot be replicated without forking the platform. Also gaps: no
+audit-trail tamper-evidence, no per-cron-job token/cost budget, no per-delegation model override
+(routing table isn't expressible), subagent isolation is in-process/thread-based with no per-path
+read restriction (same weakness Intake already has, no improvement). Reconsider only if: Hermes
+gains per-path write-deny rules, gains per-delegation model selection, and the OS-scheduler path
+above is actually tried and found insufficient.
 
 ## Roles and model routing
 
