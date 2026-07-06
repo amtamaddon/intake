@@ -1,6 +1,6 @@
 # STATE — read at session start, updated only via /close-session
 
-Last updated: 2026-07-06 | Line count: 49/200
+Last updated: 2026-07-06 | Line count: 53/200
 
 ## 1. Verified Facts
 - The full build->verify->fail->iterate->pass->close-session loop works end to end against real
@@ -8,6 +8,10 @@ Last updated: 2026-07-06 | Line count: 49/200
 - Custom `.claude/agents/*.md` are only discoverable when Claude Code's session root IS this
   harness directory — a session rooted at a parent directory cannot spawn `builder`/`verifier`/
   `extractor` by name — 2026-07-06.
+- Real domain is healthcare revenue cycle management (RCM): claims flow from providers to
+  insurers/payers (CPT codes, billed amounts, payer IDs), not provider-to-patient contact.
+  README's example and any future task examples should reflect provider/payer, not
+  client/patient, framing — 2026-07-06.
 
 ## 2. General Rules
 (none yet — this section holds standing rules that emerged from task experience;
