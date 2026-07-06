@@ -71,8 +71,10 @@ Once an opus PASS verdict exists, run `scripts/check_done.sh <task-dir>`:
 - If it exits 0: the task's automated gates are satisfied. If Impact class is `internal`, tell the
   user the task is ready to archive. If Impact class is `money` or `client-facing`,
   `check_done.sh` will already have required `APPROVAL.md` to exist with an `APPROVED` line — if
-  it doesn't yet, tell the user precisely that a human sign-off in `<task-dir>/APPROVAL.md` is the
-  only remaining step, and stop. Do not create or suggest creating that file's content yourself.
+  it doesn't yet, tell the user the only remaining step is for a human to run
+  `scripts/approve.sh <task-dir>` themselves (it walks them through it and asks for their name),
+  and stop there. Never write `APPROVAL.md`'s content yourself or suggest a shortcut — the point of
+  that file is that only a human, acting directly, produces it.
 - If it exits nonzero: report the exact failure reason it printed. Do not paper over it.
 
 Never tell the user the task is "done" on the strength of your own judgment — only relay what
