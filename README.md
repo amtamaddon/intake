@@ -1,5 +1,9 @@
 # Intake
 
+> The entire discipline of "harness engineering" is: push as much as possible into
+> deterministic code at the boundaries where correctness actually matters, and only let the
+> probabilistic part operate in the middle, fenced in on both sides.
+
 Handing admin work involving money, client data, or PII to AI agents is risky without
 structure: nothing checks the work, nothing remembers what went wrong last time, and nothing
 stops an agent from declaring a mistake "done." Intake wraps every task in a plain-language
@@ -48,7 +52,7 @@ flowchart TB
     RISK -->|yes| APPROVE["A human reviews it and personally<br/>approves it. No AI can do this step"]:::human
     APPROVE --> DONE2["Done, only after<br/>a human said yes"]:::ai
 
-    LOG[("A permanent record of everything<br/>above. Can't be quietly edited later")]:::log
+    LOG["Permanent record of everything above.<br/>Can't be quietly edited later"]:::log
     ASK -.-> LOG
     DO -.-> LOG
     CHECK -.-> LOG
@@ -75,6 +79,47 @@ everything feeds into.*
 4. **`/close-session`**: updates `STATE.md` with what was learned, prunes it back under its
    line cap, tracks which lessons have been confirmed enough times to become a reusable
    skill, and re-verifies the worklog's hash chain before considering the session closed.
+
+## Memory & observability
+
+Intake gets better at its job over time and keeps a record of what it costs to run it:
+
+```mermaid
+flowchart TB
+    classDef mem fill:#eef2ff,stroke:#4f46e5,color:#1e1b4b,stroke-width:1px
+    classDef eval fill:#fef3c7,stroke:#b45309,color:#451a03,stroke-width:1px
+    classDef log fill:#f3f4f6,stroke:#6b7280,color:#1f2937,stroke-width:1px,stroke-dasharray:4 3
+
+    SESSTART(["A session starts"]) --> READS["Reads two memory files first:<br/>recent notes (STATE.md) and durable,<br/>always-loaded facts (MEMORY.md)"]:::mem
+    READS --> NEWTASK["A new task is described"]
+    NEWTASK --> LOOKUP["Checks past tasks and domain<br/>procedures for anything relevant"]:::mem
+    LOOKUP --> WORKHAPPENS["Work happens (see the loop above)"]
+    WORKHAPPENS --> TRACELOG["Cost, time, and token use for every<br/>step is logged to a trace file"]:::log
+    TRACELOG --> SESSEND["Session ends"]
+    SESSEND --> INDEXED["This task gets indexed for<br/>future lookups"]:::mem
+    SESSEND --> PROMOTED["Facts that keep holding up get<br/>promoted into durable memory"]:::mem
+
+    CHANGE["Anyone changes how the<br/>harness itself works"] --> GATE2{Regression tests pass?}
+    GATE2 -->|no| BLOCK["Blocked from shipping"]:::eval
+    GATE2 -->|yes| SHIP["Change allowed through"]
+```
+
+- **`MEMORY.md`** — durable, always-loaded facts (environment quirks, rules that bite, domain
+  constants), capped at 4,000 characters. Distinct from `STATE.md` (this session's residue,
+  pruned aggressively) and `CLAUDE.md` (the constitution, changed by deliberate edit only).
+  Written only via `scripts/memory_update.sh`.
+- **`memory/episodes.db`** — a SQLite+FTS5 index over every past task, queried with
+  `python scripts/recall.py`. It's a derived, rebuildable index, never a second source of
+  truth: if it and the flat files under `tasks/` ever disagree, the flat files win.
+- **`procedures/`** — domain fulfillment playbooks (payer denial codes, resubmission formats),
+  looked up with `scripts/find_procedure.sh`. Starts at `status: draft`; a human has to
+  approve one before a builder can find it through the sanctioned lookup path.
+- **`trace.jsonl`** per task — token counts, latency, and computed cost per step, anchored
+  into the hash-chained worklog with one entry rather than interleaved into it, so the
+  low-volume decision narrative stays readable and the high-volume telemetry stays
+  tamper-evident anyway.
+- **`evals/`** — regression tests for the harness itself. A pre-commit hook blocks any change
+  to `scripts/`, `.claude/`, `skills/`, or `templates/` if they fail.
 
 ## Example
 
@@ -120,9 +165,13 @@ These aren't just described behaviors an AI might follow. Each one is enforced m
 |---|---|
 | [`CLAUDE.md`](CLAUDE.md) | The constitution: roles, model routing, house rules, session protocol, directory map |
 | [`HOW-TO-ASK.md`](HOW-TO-ASK.md) | Plain-language guide for non-technical requesters |
-| [`STATE.md`](STATE.md) | Cross-session memory: verified facts, open failures, lessons learned |
+| [`STATE.md`](STATE.md) | This session's working memory: verified facts, open failures, lessons learned |
+| [`MEMORY.md`](MEMORY.md) | Durable, always-loaded operational memory, capped at 4,000 characters |
 | `.claude/skills/` | Operator commands: `new-task`, `run-task`, `verify-task`, `close-session` |
-| `skills/` | Domain playbooks, promoted once a lesson is confirmed by two separate tasks |
+| `skills/` | Harness-operational playbooks, promoted once a lesson is confirmed by two separate tasks |
+| `procedures/` | Domain (RCM) fulfillment playbooks, human-approved before a builder can use one |
+| `memory/` | The SQLite+FTS5 episodic index — derived, rebuildable, never authoritative |
+| `evals/` | Regression suite for the harness itself; gates commits via a pre-commit hook |
 
 ## Layout
 
