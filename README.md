@@ -7,6 +7,8 @@
 This is a structure to implement a build-then-verify loop with a second, independent reviewer agent, human approval
 gates, and stored memories for continuous improvement in agent behavior. Think of it like the gutters on a bowling lane: it doesn't do the work for you, it just keeps the ball from going somewhere it shouldn't.
 
+Additionally, this repo includes a system for memory storage for continuous learning and improvement of the agent's behavior over time. The agent's actions are also logged in a traceability file so anything it does can be audited and understood in retrospect.
+
 ## Getting started
 
 ```
