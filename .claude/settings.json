@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Write(**/APPROVAL.md)",
+      "Edit(**/APPROVAL.md)",
+      "Write(**/worklog.md)",
+      "Edit(**/worklog.md)"
+    ]
+  }
+}
