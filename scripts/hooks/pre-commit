@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Runs the deterministic evals gate before any commit that touches the harness's
+# own machinery. Install once with: git config core.hooksPath scripts/hooks
+set -uo pipefail
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if git diff --cached --name-only | grep -qE '^(scripts/|\.claude/|skills/|templates/|evals/)'; then
+  echo "pre-commit: harness machinery changed, running deterministic evals..."
+  if ! bash evals/run_evals.sh; then
+    echo "pre-commit: BLOCKED — deterministic evals failed. Fix them or investigate before committing."
+    exit 1
+  fi
+fi
+exit 0
